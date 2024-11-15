@@ -1,0 +1,1 @@
+This project is related to mindrelaxation it meant that relaxing your mind with meditation and music use this in the platform of Android Studio and add the external raw file for any relaxation music as(.mp3) that is downloaded on your device
