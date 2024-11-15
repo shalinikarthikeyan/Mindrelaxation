@@ -1,0 +1,116 @@
+package com.example.mindrelax;
+
+import android.media.MediaPlayer;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TextView timerText;
+    private Button startStopButton, playSoundButton;
+    private CountDownTimer countDownTimer;
+    private boolean isMeditationActive = false;
+    private long timeLeftInMillis = 600000; // 10 minutes in milliseconds
+    private boolean isSoundPlaying = false;
+    private MediaPlayer mediaPlayer;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        mediaPlayer = MediaPlayer.create(this, R.raw.relaxing); // Add a sound file to res/raw
+        mediaPlayer.setLooping(true);
+
+        timerText = findViewById(R.id.timerText);
+        startStopButton = findViewById(R.id.startStopButton);
+        playSoundButton = findViewById(R.id.playSoundButton);
+
+        // Setup button click listeners
+        startStopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isMeditationActive) {
+                    stopMeditation();
+                } else {
+                    startMeditation();
+                }
+            }
+        });
+
+        playSoundButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isSoundPlaying) {
+                    stopCalmingSound();
+                } else {
+                    playCalmingSound();
+                }
+            }
+        });
+
+        // Initialize media player
+        // Adjust file name if necessary
+    }
+
+    private void startMeditation() {
+        isMeditationActive = true;
+        startStopButton.setText("Stop Meditation");
+
+        countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timeLeftInMillis = millisUntilFinished;
+                updateTimer();
+            }
+
+            @Override
+            public void onFinish() {
+                // Meditation finished
+                stopMeditation();
+            }
+        }.start();
+    }
+
+    private void stopMeditation() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        isMeditationActive = false;
+        startStopButton.setText("Start Meditation");
+    }
+
+    private void updateTimer() {
+        int minutes = (int) (timeLeftInMillis / 1000) / 60;
+        int seconds = (int) (timeLeftInMillis / 1000) % 60;
+        String timeFormatted = String.format("%02d:%02d", minutes, seconds);
+        timerText.setText(timeFormatted);
+    }
+
+    private void playCalmingSound() {
+        if (!mediaPlayer.isPlaying()) {
+            mediaPlayer.start();
+            isSoundPlaying = true;
+            playSoundButton.setText("Stop Calming Sound");
+        }
+    }
+
+    private void stopCalmingSound() {
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            isSoundPlaying = false;
+            playSoundButton.setText("Play Calming Sound");
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+    }
+}
